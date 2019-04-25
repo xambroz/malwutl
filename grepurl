@@ -1,0 +1,35 @@
+#!/bin/bash
+# Author:  Michal Ambroz <rebus@seznam.cz>
+# License: GPLv2+
+#
+#     Copyright (C) 2018  Michal Ambroz <rebus@seznam.cz>
+#
+#     This program is free software: you can redistribute it and/or modify
+#     it under the terms of the GNU General Public License as published by
+#     the Free Software Foundation, either version 2 of the License, or
+#     (at your option) any later version.
+#
+#     This program is distributed in the hope that it will be useful,
+#     but WITHOUT ANY WARRANTY; without even the implied warranty of
+#     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#     GNU General Public License for more details.
+#
+#     You should have received a copy of the GNU General Public License
+#     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+# Example:
+#     grepurl malware.vba
+#     ... look for strings, which might be URL
+
+
+FULLURL="(https?|ftp|mailto)://[a-zA-Z0-9._/%?&=:@-]*"
+
+#URI starting with "/ as in <form action="/something/blabla.php">
+SLASHURI="\"/[a-zA-Z0-9._/%?&=-]*\""
+
+#Some other uri containing PHP, ASP, HTML
+SCRIPTURI="[a-zA-Z0-9.%/]*\.(html?|php|phtml|aspx?)[a-zA-Z0-9._/%?&=-]*"
+
+PATTERN="$FULLURL|$SLASHURI|$SCRIPTURI"
+
+grep -a -o -E "$PATTERN" "$@"
