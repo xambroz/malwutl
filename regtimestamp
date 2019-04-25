@@ -1,0 +1,74 @@
+#!/bin/env python
+# encoding=utf8
+"""
+Author:  Michal Ambroz <rebus@seznam.cz>
+License: GPLv2+
+
+    Copyright (C) 2017  Michal Ambroz <rebus@seznam.cz>
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Example:
+    regtimestamp system /
+
+"""
+
+
+from Registry import Registry
+import sys
+import hexdump
+
+DUMPMAX = 1000
+
+regfile = sys.argv[1]
+
+keyname = '/'
+if len(sys.argv) > 2:
+    keyname = sys.argv[2]
+
+keyname = keyname.replace("/", "\\")
+
+registry = Registry.Registry(regfile)
+root = registry.root()
+
+key = None
+if keyname == '\\':
+    key = root
+else:
+    key = root.find_key(keyname.lstrip("\\"))
+
+print("==== Hive")
+print("Hive Name: %s" % ( registry.hive_name()) )
+print("Hive Type: %s" % ( registry.hive_type()) )
+
+print("==== Key")
+print("%s\t%s" % (key.timestamp(),key.path()))
+
+print("==== Values: %d" % (key.values_number() ))
+for v in key.values():
+    strvalue = ''
+    if v.value_type_str() == u'RegBin' :
+        print('%s [%s] - hexdump =>' % (v.name(), v.value_type_str()))
+        hexdump.hexdump(v.value()[0:DUMPMAX])
+    else:
+        strvalue = str(v.value())[0:DUMPMAX]
+        print('%s [%s] %s' % (v.name(), v.value_type_str(), strvalue))
+
+
+print("==== Subkeys: %d" % (key.subkeys_number()))
+for k in key.subkeys():
+    print('%s\t%s' % ( str(k.timestamp()), k.path() ) )
+
+
+
